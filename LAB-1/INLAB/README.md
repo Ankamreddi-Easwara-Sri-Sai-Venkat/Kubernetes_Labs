@@ -19,7 +19,7 @@ LAB-1/
 │
 ├── README.md
 ├── kind-3node.yaml
-├── kind-4node.yaml
+|
 └── httpd-deployment.yaml
 ```
 
