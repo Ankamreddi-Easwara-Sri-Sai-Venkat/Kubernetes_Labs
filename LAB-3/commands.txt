@@ -1,0 +1,63 @@
+
+# STEP 1: Check Kubernetes cluster
+go version
+kubectl config use-context kind-klu
+kubectl get nodes
+
+# STEP 2: Create project
+mkdir $HOME\welcome-controller
+cd $HOME\welcome-controller
+
+# STEP 3: Initialize Go module
+go mod init welcome-controller
+
+# STEP 4: Copy main.go
+Copy-Item $HOME\Downloads\main.go .
+
+# STEP 5: Install dependencies
+go get k8s.io/client-go@v0.37.1 k8s.io/api@v0.37.1 k8s.io/apimachinery@v0.37.1
+
+# STEP 6: Update dependencies
+go mod tidy
+
+# STEP 7: Build controller
+go build .
+
+# STEP 8: Run controller
+go run .
+
+# STEP 9: Create namespace
+kubectl create namespace team-a
+
+# STEP 10: Label namespace
+kubectl label namespace team-a klu.edu/managed=true
+
+# STEP 11: Check ConfigMap
+kubectl get configmap -n team-a
+
+# STEP 12: View ConfigMap YAML
+kubectl get configmap welcome -n team-a -o yaml
+
+# STEP 13: Test self-healing
+kubectl delete configmap welcome -n team-a
+kubectl get configmap -n team-a
+
+# STEP 14: Test controller recovery
+kubectl create namespace team-b
+kubectl label namespace team-b klu.edu/managed=true
+
+# Restart controller and verify
+kubectl get configmap -n team-b
+
+# STEP 15: Test multiple controllers
+kubectl create namespace team-c
+kubectl label namespace team-c klu.edu/managed=true
+kubectl get configmap -n team-c
+
+# STEP 16: Remove namespace label
+kubectl label namespace team-a klu.edu/managed-
+
+# STEP 17: Cleanup
+kubectl delete namespace team-a team-b team-c
+
+
